@@ -18,11 +18,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY code_agent/ ./code_agent/
 COPY config/ ./config/
-COPY pyproject.toml setup.py ./
 
-# Create a simple entry point instead of installing package
+# Use PYTHONPATH instead of installing package (simpler for Docker)
 ENV PYTHONPATH=/app
-RUN pip install --no-cache-dir typer rich
 
 # Create non-root user
 RUN useradd -m -u 1000 codeagent && \
