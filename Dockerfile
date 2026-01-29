@@ -15,9 +15,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY code_agent/ ./code_agent/
-COPY config/ ./config/
+# Copy all project files
+COPY . .
 
 # Use PYTHONPATH instead of installing package (simpler for Docker)
 ENV PYTHONPATH=/app

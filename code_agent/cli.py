@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -42,7 +41,7 @@ def version() -> None:
 @app.command()
 def process_issue(
     issue_number: int = typer.Argument(..., help="GitHub issue number to process"),
-    repo_path: Optional[str] = typer.Option(
+    repo_path: str | None = typer.Option(
         None, "--repo-path", "-r", help="Path to local repository"
     ),
     log_level: str = typer.Option(
@@ -51,13 +50,13 @@ def process_issue(
 ) -> None:
     """Process a GitHub issue and create a pull request."""
     setup_logging(log_level)
-    
+
     console.print(f"[bold blue]Processing issue #{issue_number}...[/bold blue]")
-    
+
     try:
         agent = CodeAgent(repo_path=repo_path)
         result = agent.process_issue(issue_number)
-        
+
         if result.get("success"):
             console.print("[bold green]✓[/bold green] Successfully created pull request!")
             console.print(f"  PR Number: #{result['pr_number']}")
@@ -66,7 +65,7 @@ def process_issue(
         else:
             console.print(f"[bold red]✗[/bold red] Failed: {result.get('error')}")
             sys.exit(1)
-            
+
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {str(e)}")
         logging.exception("Failed to process issue")
@@ -82,27 +81,27 @@ def review_pr(
 ) -> None:
     """Review a pull request and provide feedback."""
     setup_logging(log_level)
-    
+
     console.print(f"[bold blue]Reviewing PR #{pr_number}...[/bold blue]")
-    
+
     try:
         agent = ReviewerAgent()
         result = agent.review_pull_request(pr_number)
-        
+
         if result.get("approved"):
             console.print("[bold green]✓[/bold green] PR Approved!")
         else:
             console.print("[bold yellow]⚠[/bold yellow] Changes Requested")
-        
+
         console.print("\n[bold]Feedback:[/bold]")
         console.print(result.get("feedback", "No feedback provided"))
-        
+
         issues = result.get("issues", [])
         if issues:
             console.print("\n[bold]Issues:[/bold]")
             for i, issue in enumerate(issues, 1):
                 console.print(f"  {i}. {issue}")
-                
+
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {str(e)}")
         logging.exception("Failed to review PR")
@@ -116,7 +115,7 @@ def fix_pr(
         ..., "--feedback", "-f", help="Feedback from review to address"
     ),
     iteration: int = typer.Option(1, "--iteration", "-i", help="Iteration number"),
-    repo_path: Optional[str] = typer.Option(
+    repo_path: str | None = typer.Option(
         None, "--repo-path", "-r", help="Path to local repository"
     ),
     log_level: str = typer.Option(
@@ -125,20 +124,20 @@ def fix_pr(
 ) -> None:
     """Fix issues in a pull request based on review feedback."""
     setup_logging(log_level)
-    
+
     console.print(f"[bold blue]Fixing PR #{pr_number} (iteration {iteration})...[/bold blue]")
-    
+
     try:
         agent = CodeAgent(repo_path=repo_path)
         result = agent.fix_pr_issues(pr_number, feedback, iteration)
-        
+
         if result.get("success"):
             console.print("[bold green]✓[/bold green] Successfully fixed PR!")
             console.print(f"  Files Modified: {len(result['files_modified'])}")
         else:
             console.print(f"[bold red]✗[/bold red] Failed: {result.get('error')}")
             sys.exit(1)
-            
+
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {str(e)}")
         logging.exception("Failed to fix PR")
@@ -154,14 +153,14 @@ def generate_summary(
 ) -> None:
     """Generate a review summary for GitHub Actions."""
     setup_logging(log_level)
-    
+
     try:
         agent = ReviewerAgent()
         summary = agent.generate_review_summary(pr_number)
-        
+
         # Print summary to stdout (can be captured by GitHub Actions)
         print(summary)
-        
+
     except Exception as e:
         console.print(f"[bold red]Error:[/bold red] {str(e)}")
         logging.exception("Failed to generate summary")
