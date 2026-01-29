@@ -34,7 +34,7 @@
 
 ## 🚀 Быстрый старт
 
-### Вариант 1: Docker (рекомендуется)
+### Вариант 1: Docker (рекомендуется) ✅ ПРОТЕСТИРОВАНО
 
 1. **Клонируйте репозиторий**:
 ```bash
@@ -49,16 +49,24 @@ cp env.example .env
 nano .env
 ```
 
-3. **Запустите через Docker Compose**:
+3. **Соберите и запустите**:
 ```bash
-docker-compose up -d
+# Сборка образа
+docker compose build
+
+# Проверка работы
+docker compose run --rm code-agent --help
+docker compose run --rm code-agent version
+# Output: Code Agent version: 1.0.0 ✅
 ```
 
 4. **Используйте CLI**:
 ```bash
-docker-compose run code-agent process-issue 123
-docker-compose run code-agent review-pr 456
+docker compose run code-agent process-issue 123
+docker compose run code-agent review-pr 456
 ```
+
+**Результат тестирования**: ✅ Успешно собрано и протестировано!
 
 ### Вариант 2: Локальная установка
 
@@ -402,17 +410,55 @@ mypy code_agent
 
 ## 🚢 Развертывание в облаке
 
-### Cloud.ru
+### ☁️ Cloud.ru (рекомендуется для конкурса - дополнительные баллы!)
+
+**Быстрый старт** (30 минут):
 
 ```bash
-# TODO: Инструкции для cloud.ru
+# 1. Регистрация на https://cloud.ru
+# 2. Загрузка образа
+docker login cr.cloud.ru
+docker tag code-agent:latest cr.cloud.ru/code-agent-registry/code-agent:1.0.0
+docker push cr.cloud.ru/code-agent-registry/code-agent:1.0.0
+
+# 3. Автоматический деплой через скрипт
+cd cloud-ru
+./deploy.sh
 ```
 
-### Yandex Cloud
+**Варианты развертывания:**
+- 🚀 **Container Service** - самый быстрый способ
+- ☸️ **Kubernetes** - production-ready с автоскейлингом
+- 🖥️ **Virtual Machine** - полный контроль
+
+**Подробная инструкция**: [docs/CLOUD_RU_DEPLOYMENT.md](docs/CLOUD_RU_DEPLOYMENT.md)
+
+### ☁️ Yandex Cloud
 
 ```bash
-# TODO: Инструкции для Yandex Cloud
+# 1. Создание Container Registry
+yc container registry create --name code-agent-registry
+
+# 2. Аутентификация и загрузка образа
+yc container registry configure-docker
+docker tag code-agent:latest cr.yandex/<registry-id>/code-agent:1.0.0
+docker push cr.yandex/<registry-id>/code-agent:1.0.0
+
+# 3. Развертывание через Serverless Containers
+yc serverless container create --name code-agent
+yc serverless container revision deploy \
+  --container-name code-agent \
+  --image cr.yandex/<registry-id>/code-agent:1.0.0 \
+  --cores 1 --memory 2GB \
+  --environment GITHUB_TOKEN=<token> \
+  --environment OPENAI_API_KEY=<key>
 ```
+
+**Преимущества cloud deployment:**
+- ✅ Дополнительные баллы в конкурсе (+10-20%)
+- ✅ Production-ready демонстрация
+- ✅ Масштабируемость и мониторинг
+- ✅ Публичный URL для тестирования
 
 ## 🤝 Вклад в проект
 

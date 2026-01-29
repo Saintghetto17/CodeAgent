@@ -1,6 +1,5 @@
 """Tests for configuration module."""
 
-import pytest
 from code_agent.config import Settings
 
 

@@ -1,7 +1,7 @@
 """Tests for LLM module."""
 
-import pytest
 from unittest.mock import Mock, patch
+
 from code_agent.core.llm import LLMService, OpenAIProvider
 
 
@@ -22,11 +22,11 @@ def test_openai_provider_generate(mock_openai: Mock) -> None:
     mock_response.choices[0].message.content = "Test response"
     mock_client.chat.completions.create.return_value = mock_response
     mock_openai.return_value = mock_client
-    
+
     # Test
     provider = OpenAIProvider()
     result = provider.generate([{"role": "user", "content": "test"}])
-    
+
     assert result == "Test response"
     mock_client.chat.completions.create.assert_called_once()
 

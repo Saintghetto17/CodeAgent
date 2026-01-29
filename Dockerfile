@@ -12,15 +12,15 @@ RUN apt-get update && \
 
 # Copy requirements first for better caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY code_agent/ ./code_agent/
 COPY config/ ./config/
 
-# Install the package
-COPY pyproject.toml .
-RUN pip install --no-cache-dir -e .
+# Use PYTHONPATH instead of installing package (simpler for Docker)
+ENV PYTHONPATH=/app
 
 # Create non-root user
 RUN useradd -m -u 1000 codeagent && \
@@ -29,6 +29,6 @@ RUN useradd -m -u 1000 codeagent && \
 USER codeagent
 
 # Set entrypoint
-ENTRYPOINT ["code-agent"]
+ENTRYPOINT ["python", "-m", "code_agent.cli"]
 CMD ["--help"]
 
